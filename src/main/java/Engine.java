@@ -11,16 +11,24 @@ public class Engine {
 
     public int[] solution (int[] arr) {
         List<NumberFromArray> numbers = createNumbers(arr);
-        for(int i =0; i<numbers.size(); i++) {
+        dividable(numbers);
+        increasing(numbers);
+        return convertListIntoArray(numbers);
+    }
+
+    private void increasing(List<NumberFromArray> numbers) {
+        for(int i = 0; i< numbers.size(); i++) {
+            makeBigestSum(numbers.get(i));
+        }
+        System.out.println("List after change : " + numbers + " , moves left :" + globalCounter);
+    }
+
+    private void dividable(List<NumberFromArray> numbers) {
+        for(int i = 0; i< numbers.size(); i++) {
             makeNumberDivisible(numbers.get(i));
             globalCounter = globalCounter - numbers.get(i).getCounter();
         }
         Collections.sort(numbers, Comparator.comparingInt(NumberFromArray ::getNumber).reversed());
-        for(int i=0; i<numbers.size();i++) {
-            makeBigestSum(numbers.get(i));
-        }
-        System.out.println("List after change : " + numbers + " , moves left :" + globalCounter);
-        return convertListIntoArray(numbers);
     }
 
     private List<NumberFromArray> createNumbers(int[] arr) {
