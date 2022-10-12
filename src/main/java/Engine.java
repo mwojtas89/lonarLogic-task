@@ -2,109 +2,116 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.reverse;
 
 public class Engine {
-    private int globalCounter=6;
+    private static final int UNAVALIBE_POSITION = 9;
+    private static final int MOVES_NEEDED_TO_INCREASE_AND_KEEP_DIVIDABE = 3;
+    private int changesCounter=6;
+    private int possition = 1;
 
-    public int[] solution (int[] arr) {
-        List<NumberFromArray> numbers = createNumbers(arr);
-        dividable(numbers);
-        increasing(numbers);
+    public int[] solveTask (int[] arr) throws RuntimeException {
+        if (arr.length!=3) {
+            throw new RuntimeException("Please insert arr containing 3 int");
+        }
+        List<Number> numbers = createListOfNumbersAndDigits(arr);
+        print(numbers);
+        numbers = makeNumbersDividabeByThree(numbers);
+        print(numbers);
+        if (changesCounter>=MOVES_NEEDED_TO_INCREASE_AND_KEEP_DIVIDABE) {
+            numbers = makeTheBigestSumOfNumbers(numbers);
+            print(numbers);
+        }
+        cleanUp();
         return convertListIntoArray(numbers);
     }
 
-    private void increasing(List<NumberFromArray> numbers) {
-        for(int i = 0; i< numbers.size(); i++) {
-            makeBigestSum(numbers.get(i));
+    private List<Number> createListOfNumbersAndDigits (int[] arr) {
+        List<Number> number = new ArrayList<>();
+        for(int i = 0; i<arr.length; i++) {
+            String localNumber = String.valueOf(arr[i]);
+            List<Digit> digits = new ArrayList<>();
+            for (int d = 0; d < localNumber.length(); d++) {
+                digits.add(new Digit(Integer.parseInt(String.valueOf(localNumber.charAt(d))), possition));
+                possition++;
+            }
+        number.add(new Number(digits ,arr[i]));
         }
-        System.out.println("List after change : " + numbers + " , moves left :" + globalCounter);
+        return number;
     }
 
-    private void dividable(List<NumberFromArray> numbers) {
-        for(int i = 0; i< numbers.size(); i++) {
-            makeNumberDivisible(numbers.get(i));
-            globalCounter = globalCounter - numbers.get(i).getCounter();
-        }
-        Collections.sort(numbers, Comparator.comparingInt(NumberFromArray ::getNumber).reversed());
-    }
-
-    private List<NumberFromArray> createNumbers(int[] arr) {
-        List<NumberFromArray> listOfNumbers= new ArrayList<>();
-        for(int i = 0; i< arr.length; i++) {
-            listOfNumbers.add(new NumberFromArray(arr[i]));
-        }
-        return listOfNumbers;
-    }
-
-    public void makeNumberDivisible (NumberFromArray number) {
-        List<Integer> digits = convertIntIntoListOfDigits(number.getNumber());
-
-        int sumOfDigits = digits.stream()
-                .reduce(0, Integer::sum);
-
-        if(sumOfDigits%3!=0) {
-            number.setCounter(3-(sumOfDigits%3));
-            int localCounter = number.getCounter();
-            for (int i =0; i<digits.size(); i++) {
-                int localDigit = digits.get(i);
-                if (localCounter!=0 && !isTheDigitValueMax(localDigit)) {
-                    do {
-                        localDigit++;
-                        localCounter--;
-                        digits.set(i, localDigit);
-                    } while (localCounter!=0 && !isTheDigitValueMax(localDigit));
+    private List<Number> makeNumbersDividabeByThree (List<Number> numbers) {
+        for(int i =0; i<numbers.size(); i++) {
+            if(numbers.get(i).getCompleteNumber()%3!=0) {
+                int localCounter = 3 - (numbers.get(i).getCompleteNumber()%3);
+                for(int d=0; d< numbers.get(i).getDigits().size(); d++) {
+                    int localDigit = numbers.get(i).getDigits().get(d).getDigit();
+                    while(!isDigitMaxValue(localDigit) && localCounter!=0 &&
+                    numbers.get(i).getDigits().get(d).getPosition()!=UNAVALIBE_POSITION) {
+                        localDigit++;      //increasing digit
+                        localCounter--;    //decreasing local counter to change number to number dividible by 3
+                        changesCounter--;  //decreasing global moves counter
+                        numbers.get(i).getDigits().get(d).setDigit(localDigit);  //setting corrected digit
+                    }
                 }
             }
         }
-        number.setNumber(convertListIntoInt(digits));
+        updateCompleteNumber(numbers);
+        return numbers;
     }
 
-    private void makeBigestSum (NumberFromArray number) {
-        List<Integer> digits = convertIntIntoListOfDigits(number.getNumber());
-        int localCounter = globalCounter;
-        int localNumber;
-        for (int i=0; i< digits.size(); i++) {
-            if(digits.get(i)<7 && localCounter>=3) {
-                localCounter = localCounter-3;
-                localNumber=digits.get(i)+3;
-                digits.set(i, localNumber);
+    private List<Number> makeTheBigestSumOfNumbers (List<Number> numbers) {
+        List<Number> localList = numbers;
+        Collections.sort(localList, Comparator.comparingInt(Number::getCompleteNumber).reversed());
+        for (int i = 0; i< localList.size(); i++) {
+            for(int d =0; d< localList.get(i).getDigits().size(); d++) {
+                int localDigit = localList.get(i).getDigits().get(d).getDigit();
+                int localCounter = MOVES_NEEDED_TO_INCREASE_AND_KEEP_DIVIDABE;
+                if (changesCounter>=MOVES_NEEDED_TO_INCREASE_AND_KEEP_DIVIDABE)
+                while(!isDigitMaxValue(localDigit) && changesCounter!=0 && localCounter!=0 &&
+                numbers.get(i).getDigits().get(d).getPosition()!=9) {
+                    localDigit++;
+                    localCounter--;
+                    changesCounter--;
+                    numbers.get(i).getDigits().get(d).setDigit(localDigit);
+                }
             }
         }
-        number.setNumber(convertListIntoInt(digits));
-        globalCounter=localCounter;
+        updateCompleteNumber(localList);
+        return localList;
+    }
+
+    private boolean isDigitMaxValue (int digit) {
+        return digit==9;
     }
 
 
-    private int convertListIntoInt (List<Integer> list) {
+    private void print (List<Number> numbers) {
+        for(int i = 0; i< numbers.size(); i++) {
+            System.out.println(numbers.get(i).getCompleteNumber());
+        }
+        System.out.println("Avalibe changes : " + changesCounter);
+    }
+
+    private void updateCompleteNumber (List<Number> numbers) {
         int total=0;
-        for (Integer i : list) {
-            total = 10*total+i;
+        for(Number n : numbers) {
+            total=0;
+            for(Digit d : n.getDigits()) {
+                total = 10 * total + d.getDigit();
+            }
+            n.setCompleteNumber(total);
         }
-        return total;
     }
 
-    private List<Integer> convertIntIntoListOfDigits (int number) {
-        List<Integer> digits = new ArrayList<>();
-        int localInt = number;
-        while(localInt>0) {
-            digits.add(localInt%10);
-            localInt = localInt/10;
+    private int[] convertListIntoArray (List<Number> numbers) {
+        int[] solution = new int[numbers.size()];
+        for (int i = 0; i< numbers.size(); i++) {
+            solution[i] = numbers.get(i).getCompleteNumber();
         }
-        reverse(digits);
-        System.out.println(digits);
-        return digits;
+        return solution;
     }
 
-    private boolean isTheDigitValueMax (int digit) {
-        return digit == 9;
-    }
-
-    private int[] convertListIntoArray (List<NumberFromArray> number) {
-        int[] arr = new int[number.size()];
-        for (int i =0; i<number.size(); i++) arr[i] = number.get(i).getNumber();
-        return arr;
+    private void cleanUp () {
+        changesCounter = 6;
     }
 }
