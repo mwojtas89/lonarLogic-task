@@ -16,9 +16,11 @@ public class Engine {
         List<Number> numbers = createListOfNumbersAndDigits(arr);
         print(numbers);
         numbers = makeNumbersDivisibleByThree(numbers);
-        print(numbers);
-        List<Solutions> posibleSolutions = makeTheBigestSumOfNumbers(numbers);
-        numbers = choseBestResult(posibleSolutions);
+        if (changesCounter>=3 && !areAllNumbersAreZeros(numbers)) {
+            List<Solutions> posibleSolutions = makeTheBigestSumOfNumbers(numbers);
+            numbers = choseBestResult(posibleSolutions);
+            return convertListIntoArray(numbers);
+        }
         cleanUp();
         return convertListIntoArray(numbers);
     }
@@ -39,7 +41,7 @@ public class Engine {
 
     private List<Number> makeNumbersDivisibleByThree (List<Number> numbers) {
         for(Number n : numbers) {                                       //iterating through numbers
-            if(n.getCompleteNumber()%3!=0) {                            //checking if number is divisible by 3
+            if(n.getCompleteNumber()%3!=0) {  //checking if number is divisible by 3 or is 0
                 int localCounter = 3 - (n.getCompleteNumber()%3);       //setting localCounter as steps to be made to have digit be divisible by 3
                 for(Digit d : n.getDigits()) {                          //iterating through digits
                     int localDigit = d.getDigit();
@@ -51,6 +53,8 @@ public class Engine {
                         d.setDigit(localDigit);                         //setting increased digit
                     }
                 }
+            } else if (n.getCompleteNumber()==0) {
+                return numbers;
             }
         }
         updateCompleteNumber(numbers);                                  //update of int number in class solution_elements.Number
@@ -97,6 +101,10 @@ public class Engine {
             posibleSolution.add(new Number(posibleSolutionDigits, n.getCompleteNumber()));
         }
         return posibleSolution;
+    }
+
+    private boolean areAllNumbersAreZeros (List<Number> numbers) {
+        return numbers.stream().map(Number::getCompleteNumber).reduce(0, Integer::sum)==0;
     }
 
 
