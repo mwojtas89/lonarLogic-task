@@ -1,3 +1,5 @@
+package solution_elements;
+
 import java.util.List;
 
 public class Digit {

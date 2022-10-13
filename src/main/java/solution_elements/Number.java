@@ -1,5 +1,6 @@
+package solution_elements;
+
 import java.util.List;
-import java.util.Objects;
 
 public class Number {
     private List<Digit> digits;

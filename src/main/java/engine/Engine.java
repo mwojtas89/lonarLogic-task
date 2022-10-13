@@ -1,3 +1,9 @@
+package engine;
+
+import solution_elements.Digit;
+import solution_elements.Number;
+import solution_elements.Solutions;
+
 import java.util.*;
 
 public class Engine {
@@ -11,9 +17,8 @@ public class Engine {
         print(numbers);
         numbers = makeNumbersDivisibleByThree(numbers);
         print(numbers);
-        List<Solutions> solutions = makeTheBigestSumOfNumbers(numbers);
-        numbers = choseBestResult(solutions);
-        print(numbers);
+        List<Solutions> posibleSolutions = makeTheBigestSumOfNumbers(numbers);
+        numbers = choseBestResult(posibleSolutions);
         cleanUp();
         return convertListIntoArray(numbers);
     }
@@ -48,7 +53,7 @@ public class Engine {
                 }
             }
         }
-        updateCompleteNumber(numbers);                                  //update of int number in class Number
+        updateCompleteNumber(numbers);                                  //update of int number in class solution_elements.Number
         return numbers;
     }
 
