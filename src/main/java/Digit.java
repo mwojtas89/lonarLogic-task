@@ -27,6 +27,6 @@ public class Digit {
 
     @Override
     public String toString() {
-        return "" + digit + " " + position;
+        return "" + digit ;
     }
 }

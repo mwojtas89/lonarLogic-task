@@ -21,4 +21,10 @@ public class Number {
     public int getCompleteNumber() {
         return completeNumber;
     }
+
+    @Override
+    public String toString() {
+        return "digits :" + digits +
+                ", completeNumber=" + completeNumber;
+    }
 }
