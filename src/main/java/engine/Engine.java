@@ -25,14 +25,14 @@ public class Engine {
 
     private List<Number> createListOfNumbersAndDigits (int[] arr) {
         List<Number> number = new ArrayList<>();
-        for(int i = 0; i<arr.length; i++) {
-            String localNumber = String.valueOf(arr[i]);
+        for (int j : arr) {
+            String localNumber = String.valueOf(j);
             List<Digit> digits = new ArrayList<>();
             for (int d = 0; d < localNumber.length(); d++) {
                 digits.add(new Digit(Integer.parseInt(String.valueOf(localNumber.charAt(d))), possition));
                 possition++;
             }
-        number.add(new Number(digits ,arr[i]));
+            number.add(new Number(digits, j));
         }
         return number;
     }
@@ -116,7 +116,7 @@ public class Engine {
             int result = s.getSolution().stream().map(Number::getCompleteNumber).reduce(0, Integer::sum);
             s.setSum(result);
         }
-        Collections.sort(results, Comparator.comparingInt(Solutions::getSum).reversed());
+        results.sort(Comparator.comparingInt(Solutions::getSum).reversed());
         return results.get(0).getSolution();
     }
 
@@ -129,7 +129,7 @@ public class Engine {
     }
 
     private void updateCompleteNumber (List<Number> numbers) {
-        int total=0;
+        int total;
         for(Number n : numbers) {
             total=0;
             for(Digit d : n.getDigits()) {
