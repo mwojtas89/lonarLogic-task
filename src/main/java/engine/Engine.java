@@ -5,18 +5,18 @@ import solution_elements.Number;
 import solution_elements.Solutions;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Engine {
     private static final int UNAVALIBE_POSITION = 9;
     private static final int MOVES_NEEDED_TO_INCREASE_AND_KEEP_DIVIDABE = 3;
     private int changesCounter=6;
-    private int possition = 1;
 
     public int[] solveTask (int[] arr) {
         List<Number> numbers = createListOfNumbersAndDigits(arr);
         print(numbers);
         numbers = makeNumbersDivisibleByThree(numbers);
-        if (changesCounter>=3 && !areAllNumbersAreZeros(numbers)) {
+        if (changesCounter>=3 && !areAllNumbersZeros(numbers)) {
             List<Solutions> posibleSolutions = makeTheBigestSumOfNumbers(numbers);
             numbers = choseBestResult(posibleSolutions);
             return convertListIntoArray(numbers);
@@ -26,17 +26,20 @@ public class Engine {
     }
 
     private List<Number> createListOfNumbersAndDigits (int[] arr) {
-        List<Number> number = new ArrayList<>();
-        for (int j : arr) {
-            String localNumber = String.valueOf(j);
-            List<Digit> digits = new ArrayList<>();
-            for (int d = 0; d < localNumber.length(); d++) {
-                digits.add(new Digit(Integer.parseInt(String.valueOf(localNumber.charAt(d))), possition));
-                possition++;
-            }
-            number.add(new Number(digits, j));
-        }
-        return number;
+        return Arrays.stream(arr)
+                .mapToObj(i -> {
+                    List<Digit> digitsList = new ArrayList<>();
+                    String number = String.valueOf(i);
+                    char[] digits = number.toCharArray();
+                    int position = 1;
+                    for(char d : digits) {
+                        digitsList.add(new Digit(Character.getNumericValue(d), position));
+                        position++;
+                    }
+                    return new Number(digitsList, i);
+                })
+                .collect(Collectors.toList());
+
     }
 
     private List<Number> makeNumbersDivisibleByThree (List<Number> numbers) {
@@ -103,11 +106,9 @@ public class Engine {
         return posibleSolution;
     }
 
-    private boolean areAllNumbersAreZeros (List<Number> numbers) {
+    private boolean areAllNumbersZeros (List<Number> numbers) {
         return numbers.stream().map(Number::getCompleteNumber).reduce(0, Integer::sum)==0;
     }
-
-
 
     private boolean isItPosibleToIncrease (List<Digit> digits, int counter) {
         int maxValueOfDigits = digits.size()*9;
@@ -127,7 +128,6 @@ public class Engine {
         results.sort(Comparator.comparingInt(Solutions::getSum).reversed());
         return results.get(0).getSolution();
     }
-
 
     private void print (List<Number> numbers) {
         for(Number n : numbers) {
